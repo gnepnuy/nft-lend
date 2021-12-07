@@ -70,12 +70,6 @@ describe("fishbowl",() => {
 
 
   it("这里去校验下出借单的数据",async function () {
-    
-    // const totalSupply = await boredApeYachtClub.totalSupply();
-    // console.log("猴子的总量：",totalSupply.toString());
-    // const nftAmount = await boredApeYachtClub.balanceOf(fishbowl.address);
-    // console.log("鱼缸的nft数量：",nftAmount.toString());
-
     const userFishIds = await fishbowl.viewAddressFishIds(owner.address);
 
     expect(userFishIds[1]).to.eq(1);
@@ -85,24 +79,31 @@ describe("fishbowl",() => {
     expect(fish[1]).to.eq(2);
     expect(fish[8]).to.eq(fishbowl.address);
     expect(fish[9]).to.eq(0);
-    //console.log(fish.toString());
+    console.log(fish.toString());
   });
 
+  it('这里测试租赁动作',async function() {
+    
 
-  // it("这里测试签名",async function(){
-  //   const testContent = "aaaaaaaa";
+  })
 
-  //   const message = ethers.utils.id(testContent);
 
-  //   const messageBytes = ethers.utils.arrayify(message);
-  //   //const sig = owner.signMessage(messageBytes);
-  //   let wallet = new ethers.Wallet("cbe3eb8472ccd739ee99ffa2e443ce23e8456243fd45d3b0176b9b1ee7849429");
 
-  //   const flatSig = await wallet.signMessage(messageBytes);
-  //   // expect(await fishbowl.verifierSign(messageBytes,flatSig)).to.equal(true);
 
-  //   let sig = ethers.utils.splitSignature(flatSig);
-  //   expect(await fishbowl.verifierSignVRS(messageBytes,sig.v, sig.r, sig.s)).to.equal('0xf71A370D35F70E4467A90BC696D48e357bA91A46');
-  // })
+  it("这里测试签名",async function(){
+    const testContent = "aaaaaaaa";
+
+    const message = ethers.utils.id(testContent);
+
+    const messageBytes = ethers.utils.arrayify(message);
+    //const sig = owner.signMessage(messageBytes);
+    let wallet = new ethers.Wallet("cbe3eb8472ccd739ee99ffa2e443ce23e8456243fd45d3b0176b9b1ee7849429");
+
+    const flatSig = await wallet.signMessage(messageBytes);
+    // expect(await fishbowl.verifierSign(messageBytes,flatSig)).to.equal(true);
+
+    let sig = ethers.utils.splitSignature(flatSig);
+    expect(await fishbowl.verifierSignVRS(messageBytes,sig.v, sig.r, sig.s)).to.equal('0xf71A370D35F70E4467A90BC696D48e357bA91A46');
+  })
 
 })

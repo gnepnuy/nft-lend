@@ -93,7 +93,7 @@ contract Fishbowl {
     require(_checkPayCoin(_payCoin),'Pay coin not support');
 
     //把nft转到当前合约
-    ERC721(_nft).transferFrom(msg.sender, address(this), _tokenId);
+    ERC721(_nft).safeTransferFrom(msg.sender, address(this), _tokenId);
     //组装出借单
     fishs[fishId] = Fish({
       nft: _nft,
@@ -124,6 +124,8 @@ contract Fishbowl {
     require(fishs[_fishId].status == Status.Waiting,'Not rent');
     //校验价格
     require(fishs[_fishId].dailyRent == _dailyRent && fishs[_fishId].deposit == _deposit,'Prices have changed');
+    //校验借出人不能为出借人
+    require(userFish[_fishId] != msg.sender,'It is not allowed to lease your own nft');
     uint256 currentTime = block.timestamp;
     //计算出需要支付的租金
     uint256 rentMoney = _calculateRent(currentTime,fishs[_fishId].returnTime,fishs[_fishId].dailyRent);
@@ -139,7 +141,7 @@ contract Fishbowl {
     //记录借出时间
     fishs[_fishId].rentStartTime = currentTime;
     //把nft转给借出人
-    ERC721(fishs[_fishId].nft).transferFrom(address(this), msg.sender, fishs[_fishId].tokenId);
+    ERC721(fishs[_fishId].nft).safeTransferFrom(address(this), msg.sender, fishs[_fishId].tokenId);
     
     //event RENT(address indexed hirer,address indexed nft,address indexed payCoin, uint256 tokenId, uint256 paymentMoney);
     emit RENT(msg.sender,fishs[_fishId].nft,fishs[_fishId].payCoin,fishs[_fishId].tokenId,paymentMoney);
@@ -164,7 +166,7 @@ contract Fishbowl {
 
     //计算在超时区间需要付的费用
     if(currentTime > returnTime){
-      paymentMoney = fishs[_fishId].deposit.mul(timeoutRate).div(100);
+      paymentMoney = fishs[_fishId].deposit.mul(timeoutRate).div(1000);
       paymentMoney = paymentMoney.add(paidRent);
       //修改出借单状态
       fishs[_fishId].status = Status.Close;
@@ -180,10 +182,10 @@ contract Fishbowl {
 
     if(fishs[_fishId].status == Status.Waiting){
       //把nft转到当前合约
-      ERC721(fishs[_fishId].nft).transferFrom(msg.sender,address(this),fishs[_fishId].tokenId);
+      ERC721(fishs[_fishId].nft).safeTransferFrom(msg.sender,address(this),fishs[_fishId].tokenId);
     }else{
       //把nft转给出借人
-      ERC721(fishs[_fishId].nft).transferFrom(msg.sender,userFish[_fishId],fishs[_fishId].tokenId);
+      ERC721(fishs[_fishId].nft).safeTransferFrom(msg.sender,userFish[_fishId],fishs[_fishId].tokenId);
       //把收到的租金转给出借人
       ERC20(fishs[_fishId].payCoin).transfer(userFish[_fishId], fishs[_fishId].receivedRent);
     }
@@ -222,7 +224,7 @@ contract Fishbowl {
       //把收到的租金和nft转给出借人
       if(fishs[_fishId].receivedRent > 0){
         returnMoney = fishs[_fishId].receivedRent;
-        ERC721(fishs[_fishId].nft).transferFrom(address(this),userFish[_fishId],fishs[_fishId].tokenId);
+        ERC721(fishs[_fishId].nft).safeTransferFrom(address(this),userFish[_fishId],fishs[_fishId].tokenId);
       }
     }
 
